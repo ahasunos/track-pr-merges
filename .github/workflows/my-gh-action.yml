@@ -1,0 +1,30 @@
+name: Track Merged PRs
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  track_prs:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout Repo
+      uses: actions/checkout@v2
+
+    - name: Get Merged PRs
+      run: |
+        if [ "${{ github.event.pull_request.merged }}" == true ]; then
+          echo "Title: ${{ github.event.pull_request.title }}" >> merged_prs.txt
+          echo "Description: ${{ github.event.pull_request.body }}" >> merged_prs.txt
+          echo "Link: ${{ github.event.pull_request.html_url }}" >> merged_prs.txt
+          echo "-----------------------------------------" >> merged_prs.txt
+        fi
+
+    - name: Commit and Push
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add merged_prs.txt
+        git commit -m "Track Merged PRs"
+        git push origin main
